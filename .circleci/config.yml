@@ -12,9 +12,6 @@ jobs:
       - checkout
       - setup_remote_docker
       - run:
-          name: Build
-          command: sh script/package
-      - run:
           name: Install Docker client
           command: |
             set -x
@@ -23,8 +20,8 @@ jobs:
             tar -xz -C /tmp -f /tmp/docker-$VER.tgz
             mv /tmp/docker/* /usr/bin
       - run:
-          name: List After
-          command: ls -la
+          name: Build
+          command: sh script/package
       - deploy:
           name: Deploy production
           command: |
