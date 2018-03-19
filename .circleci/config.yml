@@ -11,11 +11,9 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-      - restore_cache:
-          key: aspnetcore-yarn-build-{{ .Branch }}-{{ checksum "Dockerfile" }}
       - run:
           name: Build
-          command: sh script/build
+          command: sh script/package
       - run:
           name: Install Docker client
           command: |
@@ -27,16 +25,10 @@ jobs:
       - run:
           name: List After
           command: ls -la
-      - save_cache:
-          key: qaspnetcore-yarn-build-{{ .Branch }}-{{ checksum "Dockerfile" }}
-          paths:
-            - ~/.nuget
       - deploy:
           name: Deploy production
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
-              docker build -t aspnetcore-yarn-build .
               docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
-              docker tag aspnetcore-yarn-build gravygaming/aspnetcore-yarn-build:latest
-              docker push gravygaming/aspnetcore-yarn-build
+              sh script/publish
             fi
