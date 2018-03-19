@@ -1,0 +1,25 @@
+#!/bin/sh
+set -e
+
+cd "$(dirname "$0")/.."
+
+# --------
+
+echo "[commit : $CIRCLE_SHA1]"
+echo "[branch : $CIRCLE_BRANCH]"
+
+if [ "${BITBUCKET_COMMIT}" != "" ]; then
+  export TAG_NAME="$(date +%Y%m%d-%H%M)-${CIRCLE_SHA1:0:7}"
+else
+  export TAG_NAME="$(date +%Y%m%d-%H%M)-$(git rev-parse --short HEAD)"
+fi
+
+echo "[tag : ${TAG_NAME}]"
+
+# tag
+docker tag gravygaming/aspnetcore-yarn-build gravygaming/aspnetcore-yarn-build:$TAG_NAME
+docker tag gravygaming/aspnetcore-yarn-build gravygaming/aspnetcore-yarn-build:latest
+
+# publish
+docker push gravygaming/aspnetcore-yarn-build:$TAG_NAME
+docker push gravygaming/aspnetcore-yarn-build:latest
